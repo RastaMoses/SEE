@@ -31,12 +31,15 @@ public class LineThrower : MonoBehaviour
     [SerializeField] [Range(10, 100)] int linePoints = 25;
     [SerializeField] [Range(0.01f, 0.25f)] float timeBetweenPoints = 0.1f;
 
+    [Header("Reel In")]
+    [SerializeField] float pullSpeed;
+
     [Header("Visuals")]
     [SerializeField] Material standardMat;
     [SerializeField] Material releaseHeldMat;
 
     //Cached Comps
-
+    PlayerController playerController;
 
     //State
     public float currentCharge;
@@ -45,10 +48,20 @@ public class LineThrower : MonoBehaviour
     bool canThrow = false;
     Vector2 aimDir;
     Coroutine throwTime;
+    bool hookOut;
+
+    GameObject currentHook;
 
     //animation stuff
     float aimDirX;
 
+    #region Built-In Functions
+
+    private void Awake()
+    {
+        //Cache Comps
+        playerController = GetComponent<PlayerController>();
+    }
 
     private void Update()
     {
@@ -64,6 +77,14 @@ public class LineThrower : MonoBehaviour
             lineRenderer.enabled = false;
         }
         UpdateVisuals();
+    }
+
+    private void FixedUpdate()
+    {
+        if (hookOut)
+        {
+            ReelIn(playerController.stickDelta);
+        }
     }
 
     private void UpdateVisuals()
@@ -90,7 +111,7 @@ public class LineThrower : MonoBehaviour
         
 
     }
-
+    #endregion
     public void SetRelease(bool release)
     {
         releaseHeld = release;
@@ -149,7 +170,8 @@ public class LineThrower : MonoBehaviour
     {
         //Catapults the object based on stick trajectory/movement and charge duration
         //Insantiate
-        var projectile = Instantiate(hookPrefab, releasePosition.position, transform.rotation);
+        currentHook = Instantiate(hookPrefab, releasePosition.position, transform.rotation);
+        currentHook.GetComponent<HookBehavior>().SetRodPos(releasePosition.position);
 
         //Calc Relative direction of throw
         Vector3 globalDir = new Vector3(dir.x, 0, dir.y);
@@ -158,12 +180,13 @@ public class LineThrower : MonoBehaviour
 
         //Add Force
 
-        Rigidbody rbProjectile = projectile.GetComponent<Rigidbody>();
+        Rigidbody rbProjectile = currentHook.GetComponent<Rigidbody>();
         Vector3 forceToAdd = relativeDir * currentCharge + transform.up * throwUpwardPower;
         rbProjectile.AddForce(forceToAdd, ForceMode.Impulse);
 
         //Tell Player Controller hook is out
-        GetComponent<PlayerController>().HookOut();
+        hookOut = true;
+        playerController.HookOut();
 
     }
 
@@ -186,7 +209,11 @@ public class LineThrower : MonoBehaviour
         }
     }
 
-
+    public void ReelIn(float stickDelta)
+    {
+        if (stickDelta < 0) { return; }
+        currentHook.GetComponent<HookBehavior>().Reel(stickDelta);
+    }
 
 
 }

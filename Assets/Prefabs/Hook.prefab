@@ -259,5 +259,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hookWeight: 1
-  waterSlowMultiplier: 0.2
+  waterSlowMultiplier: 0.62
   waterGravity: -0.3
+  reelSpeed: 0.05

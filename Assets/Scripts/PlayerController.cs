@@ -117,9 +117,6 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        
-
-
         //Movement
         if (!isExploration) { return; }
         if (tankControls) { TankMove(); }
@@ -134,7 +131,10 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        ReelIn(stickInput);
+        if (hookOut)
+        {
+            StickSpin(stickInput);
+        }
     }
 
     private void LateUpdate()
@@ -304,7 +304,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Fishing
-    private void ReelIn(Vector2 input)
+    private void StickSpin(Vector2 input)
     {
         //If stick isnt fully extended return
         if (input.magnitude < reelMinStickMagnitude)
@@ -316,9 +316,6 @@ public class PlayerController : MonoBehaviour
         //Get stick angle
         float currentAngle = Mathf.Atan2(input.x, input.y);
         currentAngle = Mathf.Rad2Deg * currentAngle;
-        
-
-
 
         //Get delta angle
         float deltaValue = currentAngle - stickAngleOld;
