@@ -19,6 +19,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float rotateSpeed = 5f;
     [SerializeField] float sideMovementSlow = 0.6f;
     [SerializeField] float reelMaxRotateSpeed;
+    [SerializeField] [Range(0, 1)] float reelMinStickMagnitude = 0.8f;
+    [SerializeField] float reelMinSpeed = 0.05f;
+
     [Header("Objects")]
     [SerializeField] FirstPersonCamera fpsCamera;
 
@@ -26,6 +29,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] InputActionReference releaseAction;
     [SerializeField] InputActionReference rotateLeftAction;
     [SerializeField] InputActionReference rotateRightAction;
+
+    [Header("Debug")]
+    [SerializeField] GameObject debugObj;
+    [SerializeField] Vector3 debugObjPos;
 
     //Cached Comps
     CharacterController controller;
@@ -44,10 +51,13 @@ public class PlayerController : MonoBehaviour
     bool rotationRightBumper;
 
     //Fishin
-    bool isHookThrown = false;
-    float reelDeltaX, reelDeltaY, reelOldX, reelOldY;
+    Vector2 stickInput;
+    bool hookOut = false;
+    public float stickDelta;
+    float stickAngleOld = 0;
     Vector2 reelInputDir;
 
+    #region Built In Methods
 
     private void OnEnable()
     {
@@ -97,8 +107,20 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(DelayedStart());
     }
 
+
+    private void Start()
+    {
+        //Debug
+        debugObjPos = debugObj.transform.position;
+    }
+
+
     private void Update()
     {
+        
+
+
+        //Movement
         if (!isExploration) { return; }
         if (tankControls) { TankMove(); }
         else
@@ -108,6 +130,11 @@ public class PlayerController : MonoBehaviour
                 CameraRelativeMove();
             }
         }
+    }
+
+    private void FixedUpdate()
+    {
+        ReelIn(stickInput);
     }
 
     private void LateUpdate()
@@ -122,6 +149,8 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    #endregion
+
     #region Inputs
     private void OnMove(InputValue value)
         {
@@ -151,9 +180,9 @@ public class PlayerController : MonoBehaviour
     private void OnAim(InputValue value)
     {
         if (!isFishing) { return; }
-        if (isHookThrown)
+        if (hookOut)
         {
-            ReelIn(value.Get<Vector2>());
+            stickInput = value.Get<Vector2>();
         }
         else
         {
@@ -277,15 +306,49 @@ public class PlayerController : MonoBehaviour
     #region Fishing
     private void ReelIn(Vector2 input)
     {
-        float deltaValuex = Input.GetAxisRaw("Horizontal") - reelOldX;
-        float deltaValuey = Input.GetAxisRaw("Vertical") - reelOldY;
-        reelOldX = Input.GetAxisRaw("Horizontal");
-        reelOldY = Input.GetAxisRaw("Vertical");
-        if (Mathf.Abs(deltaValuex) > reelMaxRotateSpeed && Mathf.Abs(deltaValuey) > reelMaxRotateSpeed)
+        //If stick isnt fully extended return
+        if (input.magnitude < reelMinStickMagnitude)
         {
-            reelInputDir = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            
+            stickDelta = 0;
+            return; 
         }
+
+        //Get stick angle
+        float currentAngle = Mathf.Atan2(input.x, input.y);
+        currentAngle = Mathf.Rad2Deg * currentAngle;
+        
+
+
+
+        //Get delta angle
+        float deltaValue = currentAngle - stickAngleOld;
+
+        //If angle goes from 360 to 0 or other way around
+        if (deltaValue > 180f) { deltaValue -= 360f; }
+        if (deltaValue < -180f) { deltaValue += 360f; }
+
+        //Minimun movement
+        if(deltaValue < reelMinSpeed && deltaValue > -reelMinSpeed)
+        {
+            deltaValue = 0;
+        }
+
+        stickDelta = deltaValue;       
+       
+        //Debugging
+
+            //Stick Rotation Block
+        debugObj.transform.position = debugObjPos + new Vector3(0, stickDelta/5, 0);
+
+
+
+        //Update Previous angle
+        stickAngleOld = currentAngle;
+    }
+
+    public float GetStickDelta()
+    {
+        return stickDelta;
     }
     
 
@@ -306,6 +369,16 @@ public class PlayerController : MonoBehaviour
         ToggleActionMap("Exploration");
         //Call event
         EventManager.ExitFishingEvent();
+    }
+
+    public void HookOut()
+    {
+        hookOut = true;
+    }
+
+    public void HookIn()
+    {
+        hookOut = false;
     }
 
     private void ToggleActionMap(string newActionMapName)

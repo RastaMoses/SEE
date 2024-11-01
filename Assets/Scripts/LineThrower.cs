@@ -147,7 +147,6 @@ public class LineThrower : MonoBehaviour
 
     private void Throw(Vector2 dir)
     {
-        Debug.Log("Throw");
         //Catapults the object based on stick trajectory/movement and charge duration
         //Insantiate
         var projectile = Instantiate(hookPrefab, releasePosition.position, transform.rotation);
@@ -162,6 +161,9 @@ public class LineThrower : MonoBehaviour
         Rigidbody rbProjectile = projectile.GetComponent<Rigidbody>();
         Vector3 forceToAdd = relativeDir * currentCharge + transform.up * throwUpwardPower;
         rbProjectile.AddForce(forceToAdd, ForceMode.Impulse);
+
+        //Tell Player Controller hook is out
+        GetComponent<PlayerController>().HookOut();
 
     }
 
@@ -183,4 +185,8 @@ public class LineThrower : MonoBehaviour
             lineRenderer.SetPosition(i, point);
         }
     }
+
+
+
+
 }
