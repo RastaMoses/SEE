@@ -10,6 +10,9 @@
 /[Ll]ogs/
 /[Mm]emoryCaptures/
 
+#Ignore Local file folder
+[Aa]ssets/LocalOnly
+
 # Never ignore Asset meta data
 !/[Aa]ssets/**/*.meta
 
