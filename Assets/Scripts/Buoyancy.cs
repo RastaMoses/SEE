@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class Buoyancy : MonoBehaviour
 {
     [SerializeField] private List<Floaters> floaters = new List<Floaters>();
-    [SerializeField] private float waterLine = 0f;
+    [SerializeField] public float waterLine = 0f;
     [SerializeField] private float underWaterDrag = 3f;
     [SerializeField] private float underWaterAngularDrag = 1f;
     [SerializeField] private float defaultDrag = 0f;
