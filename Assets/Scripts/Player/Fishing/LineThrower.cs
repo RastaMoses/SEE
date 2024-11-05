@@ -31,9 +31,6 @@ public class LineThrower : MonoBehaviour
     [SerializeField] [Range(10, 100)] int linePoints = 25;
     [SerializeField] [Range(0.01f, 0.25f)] float timeBetweenPoints = 0.1f;
 
-    [Header("Reel In")]
-    [SerializeField] float pullSpeed;
-
     [Header("Visuals")]
     [SerializeField] Material standardMat;
     [SerializeField] Material releaseHeldMat;
@@ -196,7 +193,7 @@ public class LineThrower : MonoBehaviour
         lineRenderer.enabled = true;
         lineRenderer.positionCount = Mathf.CeilToInt(linePoints / timeBetweenPoints) + 1;
         Vector3 startPosition = releasePosition.position;
-        Vector3 startVelocity = (currentCharge * transform.forward + transform.up * throwUpwardPower) / hookPrefab.GetComponent<HookBehavior>().hookWeight;
+        Vector3 startVelocity = (currentCharge * transform.forward + transform.up * throwUpwardPower) / hookPrefab.GetComponent<Rigidbody>().mass;
         int i = 0;
         lineRenderer.SetPosition(i, startPosition);
         for (float time = 0; time < linePoints; time += timeBetweenPoints)

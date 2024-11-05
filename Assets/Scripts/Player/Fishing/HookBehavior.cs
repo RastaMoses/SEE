@@ -3,10 +3,10 @@ using UnityEngine;
 public class HookBehavior : MonoBehaviour
 {
     //Serialize Params
-    [SerializeField] public float hookWeight = 1f;
-    [SerializeField] float waterSlowMultiplier = 0.6f;
-    [SerializeField] float waterGravity = -0.3f;
-    [SerializeField] float reelSpeed = 0.1f;
+    //[SerializeField] float waterSlowMultiplier = 0.6f;
+    //[SerializeField] float waterGravity = -0.3f;
+    [SerializeField] float reelSpeed = 1f;
+    [SerializeField] float reelUpMod = 0.2f;
 
     //Cached Comp
     Rigidbody rb;
@@ -22,18 +22,18 @@ public class HookBehavior : MonoBehaviour
         rb = GetComponent<Rigidbody>();
 
         //Init
-        rb.mass = hookWeight;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Water"))
         {
-            Debug.Log("Touch Water");
 
             //Touched Water
             inWater = true;
+            GetComponent<Buoyancy>().waterLine = other.gameObject.transform.position.y;
 
+            /*
             //Slow down speed
             rb.linearVelocity = rb.linearVelocity * waterSlowMultiplier;
 
@@ -41,13 +41,14 @@ public class HookBehavior : MonoBehaviour
             //Set gravity to water gravity
             rb.useGravity = false;
 
-
+            */
         } 
     }
 
 
     private void FixedUpdate()
     {
+        /*
         //Slower Water Gravity
         if (inWater)
         {
@@ -57,13 +58,12 @@ public class HookBehavior : MonoBehaviour
             rb.linearVelocity *= waterSlowMultiplier;
         }
 
-        
+        */
     }
 
     public void Reel(float stickDelta)
     {
-        Debug.Log("Reeling");
-        rb.AddForce((rodPos - transform.position) * stickDelta * reelSpeed, ForceMode.Force);
+        rb.AddForce(((rodPos - transform.position) * stickDelta * reelSpeed) + (Vector3.up * stickDelta * reelSpeed * reelUpMod), ForceMode.Force);
     }
 
     public void SetRodPos(Vector3 pos)
