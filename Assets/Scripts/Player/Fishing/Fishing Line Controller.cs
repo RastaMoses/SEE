@@ -17,7 +17,7 @@ public class FishingLineController : MonoBehaviour
     //Rope data
     private float ropeLength = 1f;
     private float minRopeLength = 1f;
-    private float maxRopeLength = 20f;
+    private float maxRopeLength = 200f;
     //Mass of what the rope is carrying
     private float loadMass = 100f;
     //How fast we can add more/less rope
@@ -25,9 +25,9 @@ public class FishingLineController : MonoBehaviour
 
 
     private List<RopeSegment> ropeSegments = new List<RopeSegment>();
-    private float ropeSegmentLength = 0.25f;
-    private int segmentCount = 20;
-    private float lineWidth = 0.1f;
+    private float ropeSegmentLength = 0.2f;
+    [SerializeField]private int segmentCount = 20;
+    private float lineWidth = 0.02f;
     [SerializeField] private int startSegmentCount = 10;
 
     //The joint we use to approximate the rope
@@ -35,10 +35,13 @@ public class FishingLineController : MonoBehaviour
 
     void Start()
     {
-        springJoint = whatTheRopeIsConnectedTo.GetComponent<SpringJoint>();
+        springJoint = whatTheRopeIsConnectedTo.GetComponentInParent<SpringJoint>();
+
+        springJoint.anchor = whatTheRopeIsConnectedTo.localPosition;
+        springJoint.connectedAnchor = whatIsHangingFromTheRope.localPosition;
 
         //Init the line renderer we use to display the rope
-        lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer = GetComponentInParent<LineRenderer>();
 
         Vector3 ropeStartPoint = Vector3.zero;
         segmentCount = startSegmentCount;
@@ -51,7 +54,7 @@ public class FishingLineController : MonoBehaviour
         UpdateSpring();
 
         //Add the weight to what the rope is carrying
-        loadMass = whatIsHangingFromTheRope.GetComponent<Rigidbody>().mass;
+        loadMass = whatIsHangingFromTheRope.GetComponentInParent<Rigidbody>().mass;
     }
 
     void Update()
@@ -214,7 +217,7 @@ public class FishingLineController : MonoBehaviour
 
         //Is about 146000
         //float kRope = ropeForce / 0.01f;
-        float kRope = 1000f;
+        float kRope = 146000;
 
         //print(ropeMass);
 
@@ -234,21 +237,21 @@ public class FishingLineController : MonoBehaviour
         //More rope
         if (Input.GetKey(KeyCode.O) && ropeLength < maxRopeLength)
         {
-            ropeLength += winchSpeed * Time.deltaTime;
+            ropeLength += winchSpeed * Time.fixedDeltaTime;
 
             InitRope();
 
-            whatIsHangingFromTheRope.gameObject.GetComponent<Rigidbody>().WakeUp();
+            whatIsHangingFromTheRope.gameObject.GetComponentInParent<Rigidbody>().WakeUp();
 
             hasChangedRope = true;
         }
         else if (Input.GetKey(KeyCode.I) && ropeLength > minRopeLength)
         {
-            ropeLength -= winchSpeed * Time.deltaTime;
+            ropeLength -= winchSpeed * Time.fixedDeltaTime;
 
             InitRope();
 
-            whatIsHangingFromTheRope.gameObject.GetComponent<Rigidbody>().WakeUp();
+            whatIsHangingFromTheRope.gameObject.GetComponentInParent<Rigidbody>().WakeUp();
 
             hasChangedRope = true;
         }
