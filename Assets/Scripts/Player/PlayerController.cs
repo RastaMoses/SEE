@@ -4,6 +4,7 @@ using System.Threading;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -43,11 +44,14 @@ public class PlayerController : MonoBehaviour
     //State
     bool isExploration = true;
     bool isFishing = false;
-    Vector2 playerMoveInput;
     CinemachineCamera currentCam;
     Vector3 camForward;
     Vector3 camRight;
+
+        //Inputs
+    bool rightTrigger = false;
     bool rotationLeftBumper;
+    Vector2 playerMoveInput;
     bool rotationRightBumper;
 
     //Fishin
@@ -164,8 +168,16 @@ public class PlayerController : MonoBehaviour
 
     private void OnLook(InputValue value)
     {
-        //Sends value to fps camera script
-        fpsCamera.Look(value);
+        if (isFishing && rightTrigger)
+        {
+            //Moves the rod
+            MoveRod(value);
+        }
+        else if (isFishing)
+        {
+            //Sends value to fps camera script
+            LookAround(value);
+        }
     }
 
     private void OnCancel()
@@ -195,11 +207,13 @@ public class PlayerController : MonoBehaviour
     {
         //Release was triggered
         lineThrower.SetRelease(true);
+        rightTrigger = true;
     }
 
     private void ReleaseReleased(InputAction.CallbackContext ctx)
     {
-        lineThrower?.SetRelease(false);
+        lineThrower.SetRelease(false);
+        rightTrigger = false;
     }
 
     #endregion
@@ -304,6 +318,12 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Fishing
+
+    private void LookAround(InputValue value)
+    {
+        fpsCamera.Look(value);
+    }
+
     private void StickSpin(Vector2 input)
     {
         //If stick isnt fully extended return
@@ -331,16 +351,19 @@ public class PlayerController : MonoBehaviour
         }
 
         stickDelta = deltaValue;       
-       
-        //Debugging
-
-            //Stick Rotation Block
-        debugObj.transform.position = debugObjPos + new Vector3(0, stickDelta/5, 0);
-
-
 
         //Update Previous angle
         stickAngleOld = currentAngle;
+    }
+
+    private void MoveRod(InputValue value)
+    {
+        //moves rod based on input
+    }
+
+    private void CancelMoveRod()
+    {
+        //Resets rod to original position
     }
 
     public float GetStickDelta()
