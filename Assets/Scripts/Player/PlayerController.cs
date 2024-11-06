@@ -358,7 +358,11 @@ public class PlayerController : MonoBehaviour
 
     private void MoveRod(InputValue value)
     {
-        //moves rod based on input
+        
+        else
+        {
+            GetComponent<RodMover>().Input(value.Get<Vector2>());
+        }
     }
 
     private void CancelMoveRod()

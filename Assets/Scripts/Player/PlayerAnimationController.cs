@@ -9,7 +9,6 @@ public class PlayerAnimationController : MonoBehaviour
 
     //State
 
-
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -31,5 +30,11 @@ public class PlayerAnimationController : MonoBehaviour
     {
         animator.SetFloat("rodThrowBlendX", aimDirX);
         animator.SetFloat("rodThrowBlendY", charge);
+    }
+
+    public void SetRodMove(Vector2 rodMove)
+    {
+        animator.SetFloat("rodMoveX", rodMove.x);
+        animator.SetFloat("rodMoveY", rodMove.y);
     }
 }
