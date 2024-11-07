@@ -80,7 +80,10 @@ public class LineThrower : MonoBehaviour
     {
         if (hookOut)
         {
-            ReelIn(playerController.stickDelta);
+            if ( playerController.stickDelta != 0)
+            {
+                ReelIn(playerController.stickDelta);
+            }
         }
     }
 
@@ -170,6 +173,12 @@ public class LineThrower : MonoBehaviour
         currentHook = Instantiate(hookPrefab, releasePosition.position, transform.rotation);
         currentHook.GetComponent<HookBehavior>().SetRodPos(releasePosition.position);
 
+        //Connect Line
+        rod.GetComponent<FishingLineController>().enabled = true;
+        rod.GetComponent<FishingLineController>().whatTheRopeIsConnectedTo = releasePosition;
+        rod.GetComponent<FishingLineController>().whatIsHangingFromTheRope = currentHook.transform;
+        rod.GetComponent<SpringJoint>().connectedBody = currentHook.transform.GetComponent<Rigidbody>();
+
         //Calc Relative direction of throw
         Vector3 globalDir = new Vector3(dir.x, 0, dir.y);
         var relativeDir = transform.rotation * globalDir;
@@ -209,7 +218,8 @@ public class LineThrower : MonoBehaviour
     public void ReelIn(float stickDelta)
     {
         if (stickDelta < 0) { return; }
-        currentHook.GetComponent<HookBehavior>().Reel(stickDelta);
+        //currentHook.GetComponent<HookBehavior>().Reel(stickDelta);
+        rod.GetComponent<FishingLineController>().ReelRope(stickDelta);
     }
 
 

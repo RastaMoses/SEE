@@ -214,6 +214,7 @@ public class PlayerController : MonoBehaviour
     {
         lineThrower.SetRelease(false);
         rightTrigger = false;
+        GetComponent<RodMover>().Reset();
     }
 
     #endregion
@@ -358,11 +359,7 @@ public class PlayerController : MonoBehaviour
 
     private void MoveRod(InputValue value)
     {
-        
-        else
-        {
-            GetComponent<RodMover>().Input(value.Get<Vector2>());
-        }
+        GetComponent<RodMover>().Input(value.Get<Vector2>());
     }
 
     private void CancelMoveRod()

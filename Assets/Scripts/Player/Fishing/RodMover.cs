@@ -7,8 +7,8 @@ public class RodMover : MonoBehaviour
     [SerializeField] private float moveSpeed = 0.05f;
     [SerializeField] private float minMovement = 0.1f;
     [SerializeField] private float resetSpeed = 2f;
-
-
+    [Header("Alternative Control")]
+    [SerializeField] bool instantControl = false;
 
 
     //Cached Comps
@@ -28,7 +28,11 @@ public class RodMover : MonoBehaviour
 
     private void FixedUpdate()
     {
-        
+        if (instantControl)
+        {
+            UpdateAnimation(inputs);
+            return;
+        }
         //If input basically zero
         if (inputs.x > -0.05f && inputs.x < 0.05f && inputs.y > -0.05f && inputs.y < 0.05f)
         {
@@ -36,7 +40,6 @@ public class RodMover : MonoBehaviour
             return;
         }
         
-
         if (resetting)
         {
             if (currentVelocity.x > 0) { currentVelocity.x = Mathf.Clamp(currentVelocity.x - (resetSpeed * Time.fixedDeltaTime), 0, 1); }
@@ -50,6 +53,8 @@ public class RodMover : MonoBehaviour
             currentVelocity.x = Mathf.Clamp(currentVelocity.x, -1, 1);
             currentVelocity.y = Mathf.Clamp(currentVelocity.y, -1, 1);
         }
+
+        UpdateAnimation(currentVelocity);
     }
 
     public void Input(Vector2 input)
@@ -71,8 +76,8 @@ public class RodMover : MonoBehaviour
     }
 
 
-    private void UpdateAnimation()
+    private void UpdateAnimation(Vector2 movement)
     {
-
+        anim.SetRodMove(movement);
     }
 }

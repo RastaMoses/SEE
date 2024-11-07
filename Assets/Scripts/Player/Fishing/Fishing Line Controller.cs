@@ -15,13 +15,15 @@ public class FishingLineController : MonoBehaviour
     public List<Vector3> allRopeSections = new List<Vector3>();
 
     //Rope data
-    private float ropeLength = 1f;
+    private float ropeLength = 20f;
     private float minRopeLength = 1f;
     private float maxRopeLength = 200f;
     //Mass of what the rope is carrying
     private float loadMass = 100f;
     //How fast we can add more/less rope
     float winchSpeed = 2f;
+    float newLength = 0f;
+
 
 
     private List<RopeSegment> ropeSegments = new List<RopeSegment>();
@@ -35,6 +37,7 @@ public class FishingLineController : MonoBehaviour
 
     void Start()
     {
+        newLength = ropeLength;
         springJoint = whatTheRopeIsConnectedTo.GetComponentInParent<SpringJoint>();
 
         springJoint.anchor = whatTheRopeIsConnectedTo.localPosition;
@@ -55,6 +58,7 @@ public class FishingLineController : MonoBehaviour
 
         //Add the weight to what the rope is carrying
         loadMass = whatIsHangingFromTheRope.GetComponentInParent<Rigidbody>().mass;
+
     }
 
     void Update()
@@ -234,6 +238,26 @@ public class FishingLineController : MonoBehaviour
     {
         bool hasChangedRope = false;
 
+        //Update Rope Length if newlength different
+        if (ropeLength != newLength)
+        {
+            if (ropeLength < newLength)
+            {
+                ropeLength += winchSpeed * Time.fixedDeltaTime;
+                ropeLength = Mathf.Clamp(ropeLength, ropeLength, newLength);
+            }
+            else
+            {
+                ropeLength -= winchSpeed * Time.fixedDeltaTime;
+                ropeLength = Mathf.Clamp(ropeLength, newLength, ropeLength);
+            }
+
+            InitRope();
+            whatIsHangingFromTheRope.gameObject.GetComponentInParent<Rigidbody>().WakeUp();
+            hasChangedRope = true;
+        }
+
+
         //More rope
         if (Input.GetKey(KeyCode.O) && ropeLength < maxRopeLength)
         {
@@ -277,6 +301,19 @@ public class FishingLineController : MonoBehaviour
             posOld = pos;
         }
     }
+
+    public void ChangeRopeLength(float length, float speed)
+    {
+        newLength = length;
+        winchSpeed = speed;
+    }
+
+    public void ReelRope(float speed)
+    {
+        newLength -= speed;
+        winchSpeed = speed;
+    }
+
 
 }
 
