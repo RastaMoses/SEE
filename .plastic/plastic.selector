@@ -1,3 +1,0 @@
-repository "SEE@Dot105_Studios@cloud"
-  path "/"
-    smartbranch "/main"
